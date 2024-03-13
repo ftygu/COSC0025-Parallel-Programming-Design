@@ -58,3 +58,6 @@ AI与传统计算的融合：AI的广泛应用要求处理器具备强大的AI�
 5. 结论
 总结调研发现的主要内容。
 提出对未来并行体系结构发展的看法和建议。
+
+查询网络，给出参考文献和该参考文献的对应位置，按照该格式给出\bibitem{wells2018powering}
+Jack Wells, "Powering the Road to National HPC Leadership," \textit{OpenPOWER Summit}, March 19, 2018, archived from the original on August 4, 2020, retrieved March 25, 2018.
