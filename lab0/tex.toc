@@ -8,5 +8,5 @@
 \contentsline {subsection}{\numberline {3.2}发展趋势}{5}{}%
 \contentsline {section}{\numberline {4}中国与世界的超级计算机发展对比}{5}{}%
 \contentsline {subsection}{\numberline {4.1}中国的发展历史}{5}{}%
-\contentsline {subsection}{\numberline {4.2}国际发展历史}{7}{}%
+\contentsline {subsection}{\numberline {4.2}国际发展历史}{6}{}%
 \contentsline {subsection}{\numberline {4.3}重要性与并行体系结构的发展趋势分析}{7}{}%
