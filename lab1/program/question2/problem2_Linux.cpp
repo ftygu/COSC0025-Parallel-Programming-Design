@@ -2,54 +2,53 @@
 #include <sys/time.h>
 using namespace std;
 
-#define ull unsigned long long int
+#define ull unsigned long long
 
-const ull N = 67108864;
-ull a[N];
-int LOOP = 1;
+const ull Size = 67108864;
+ull Sequence[Size];
+int Iterations = 1;
 
-void init()
+void Prepare()
 {
-    for (ull i = 0; i < N; i++)
-        a[i] = i;
+    for (ull index = 0; index < Size; index++)
+        Sequence[index] = index;
 }
 
-void ordinary()
+void StandardMethod()
 {
-    struct timeval start;
-    struct timeval end;
-    gettimeofday(&start,NULL);
-    for(int l=0;l<LOOP;l++)
+    struct timeval beginTime, endTime;
+    gettimeofday(&beginTime, NULL);
+    for(int round = 0; round < Iterations; round++)
     {
-        // init();
-        ull sum = 0;
-        for (int i = 0; i < N - 1; i+=2)
-            sum += a[i], sum += a[i+1]; 
+        ull totalSum = 0;
+        for (ull i = 0; i < Size - 1; i += 2)
+            totalSum += Sequence[i] + Sequence[i + 1];
     }
-    gettimeofday(&end,NULL);
-    cout<<"ordinary:"<<((end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec))*1.0/1000/LOOP<<"ms"<<endl;
+    gettimeofday(&endTime, NULL);
+    cout << "Standard:" << ((endTime.tv_sec - beginTime.tv_sec) * 1000000 + (endTime.tv_usec - beginTime.tv_usec)) * 1.0 / 1000 / Iterations << "ms" << endl;
 }
 
-void optimize()
+void EnhancedApproach()
 {
-    struct timeval start;
-    struct timeval end;
-    gettimeofday(&start,NULL);
-    for(int l=0;l<LOOP;l++)
+    struct timeval beginTime, endTime;
+    gettimeofday(&beginTime, NULL);
+    for(int cycle = 0; cycle < Iterations; cycle++)
     {
-        ull sum1 = 0, sum2 = 0;
-        for(int i=0;i<N-1; i+=2)
-            sum1+=a[i],sum2+= a[i+1];
-        ull sum = sum1 + sum2;
+        ull sumFirstHalf = 0, sumSecondHalf = 0;
+        for(ull i = 0; i < Size - 1; i += 2)
+        {
+            sumFirstHalf += Sequence[i];
+            sumSecondHalf += Sequence[i + 1];
+        }
+        ull combinedSum = sumFirstHalf + sumSecondHalf;
     }
-    gettimeofday(&end,NULL);
-    cout<<"ordinary:"<<((end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec))*1.0/1000/LOOP<<"ms"<<endl;
+    gettimeofday(&endTime, NULL);
+    cout << "Enhanced:" << ((endTime.tv_sec - beginTime.tv_sec) * 1000000 + (endTime.tv_usec - beginTime.tv_usec)) * 1.0 / 1000 / Iterations << "ms" << endl;
 }
-
 
 int main()
 {
-    init();
-    ordinary();
-    optimize();
+    Prepare();
+    StandardMethod();
+    EnhancedApproach();
 }
