@@ -126,15 +126,18 @@ rulesepcolor= \color{ red!20!green!20!blue!20}
     % \HRule \\[0.9cm]
     % \HRule \\[2.0cm]
     \centering
-    \textsc{\LARGE \kaishu{姓名\ :\ 熊宇轩}}\\[0.5cm]
-    \textsc{\LARGE \kaishu{学号\ :\ 2010056}}\\[0.5cm]
+    \textsc{\LARGE \kaishu{姓名\ :\ 张明昆}}\\[0.5cm]
+    \textsc{\LARGE \kaishu{学号\ :\ 2211585}}\\[0.5cm]
     \textsc{\LARGE \kaishu{专业\ :\ 计算机科学与技术}}\\[0.5cm]
     
     \vfill
-    {\Large 2022年3月13日}
+    {\Large 2024年3月22日}
     \end{center}
 \end{titlepage}
 
+\newpage
+\thispagestyle{empty}
+\renewcommand{\abstractname}{\kaishu \sihao \textbf{摘要}}
 \renewcommand {\thefigure}{\thesection{}.\arabic{figure}}%图片按章标号
 \renewcommand{\figurename}{图}
 \renewcommand{\contentsname}{目录}  
@@ -148,11 +151,11 @@ rulesepcolor= \color{ red!20!green!20!blue!20}
 
 %--------------------------Title--------------------------------
 \section{实验目标}
-   \begin{enumerate}
-   \item 以矩阵每一列与向量的内积为例，通过编写代码实践cache优化算法。
-   \item 以求数组累加和为例，通过编写代码实践两路链式相加、循环展开和递归相加等超标量优化算法。
-   \item 利用prof和uprof等工具，通过运行计时和事件计数的方法，量化分析普通算法和优化算法之间的性能差异。
-   \end{enumerate}
+    \begin{enumerate}
+      \item 以矩阵每一列与向量的内积为例，通过编写代码实践cache优化算法。
+      \item 以求数组累加和为例，通过编写代码实践两路链式相加、循环展开和递归相加等超标量优化算法。
+      \item 利用prof和uprof等工具，通过运行计时和事件计数的方法，量化分析普通算法和优化算法之间的性能差异。
+    \end{enumerate}
 \section{实验环境}
    \subsection{X86平台}
       X86平台使用的是一台笔记本电脑，具体参数如下：
@@ -163,7 +166,6 @@ rulesepcolor= \color{ red!20!green!20!blue!20}
                      frame=lines,
                      framesep=2mm,
                      highlightcolor=green!40]{bash}
-         suhipek@suhipek-BOHK-WAX9X:~$ lscpu
          Architecture:                    x86_64
          CPU(s):                          8
          L1d cache:                       128 KiB
@@ -171,9 +173,8 @@ rulesepcolor= \color{ red!20!green!20!blue!20}
          L2 cache:                        2 MiB
          L3 cache:                        4 MiB
       \end{minted}
-      其中显示的L1数据和指令缓存为四个CPU核心缓存数量的总和，每个CPU核心实际的数据缓存大小为32KB。
-      \subsection{ARM平台}
-      ARM平台使用课程提供的服务器，具体参数如下：
+  \subsection{ARM平台}
+  ARM平台使用课程提供的服务器，具体参数如下：
       \begin{minted}[mathescape,
                      linenos,
                      numbersep=5pt,
@@ -181,7 +182,6 @@ rulesepcolor= \color{ red!20!green!20!blue!20}
                      frame=lines,
                      framesep=2mm,
                      highlightcolor=green!40]{bash}
-         [s2010056@master screenFetch]$ lscpu
          Architecture:          aarch64
          CPU(s):                96
          L1d 缓存：          64K
@@ -189,81 +189,158 @@ rulesepcolor= \color{ red!20!green!20!blue!20}
          L2 缓存：           512K
          L3 缓存：           49152K
       \end{minted}
-\newpage
 \section{实验设计及分析}
-   \subsection{cache优化}
-      \subsubsection{实验设计}
+    \subsection{cache优化}
+          \subsubsection{实验设计}
+                在针对给定问题的改进算法设计中，需考虑到矩阵在内存中是以行优先顺序存储的事实。这种存储方式意味着内存中矩阵的数据按行连续排列，对于逐列访问的算法，这种存储模式会导致较高的缓存未命中率。具体来说，CPU从内存中预取连续的数据块至缓存时，这些数据块可能仅包含计算特定列元素所需的部分数据。因此，计算下一元素时，CPU可能需要重新从较低层次的缓存或主内存中获取数据，由于访问内存的延迟远高于执行计算的时间，这种访问模式显著降低了程序的执行效率。
+                
+                为了缓解这一问题，提出采用逐行访问并进行cache优化的算法，旨在最大化利用每次缓存中预取的行数据。算法通过对当前预取到cache中的一整行数据进行计算，并将计算结果累加到结果数组的相应位置，从而减少对主内存的访问频率，优化了数据的缓存利用率。虽然此策略并未直接减少计算量，但通过降低数据访问延迟，有效提高了程序整体的执行效率。
+                
+                进一步地，为了降低算法执行中的条件判断和指令跳转等开销，对逐行访问算法进行循环展开优化。通过在单次迭代中计算多个元素的值，此方法不仅减少了循环次数，还能够充分利用CPU的多条执行流水线，提升超标量处理器的计算性能。循环展开策略通过减少循环控制逻辑的开销，进一步提高了算法的执行效率，尤其在处理大规模数据时表现显著。
+          \subsubsection{实验分析}
+              我分别设计了三种算法，分别是原始算法、cache优化算法、和循环展开优化算法。并在x86架构的PC上测量了n<=4096三种算法所消耗的时间，实验测试数据如图\ref{fig:all1}所示，其中，矩阵行列数在实验中以16为步进。
+                  \begin{figure}[!htbp]
+                    \centering
+                    \subfigure[n<400]{
+                    \begin{minipage}[t]{0.5\linewidth}
+                    \centering
+                    \includegraphics[width=3.2in]{fig/Figure_2.png}
+                    \label{fig:mat1}
+                    \end{minipage}%
+                    }%
+                    \subfigure[n<4096]{
+                    \begin{minipage}[t]{0.5\linewidth}
+                    \centering
+                    \includegraphics[width=3.2in]{fig/Figure_1.png}
+                    \end{minipage}%
+                    }
+                    \centering
+                    \caption{算法消耗时间随问题规模的变化}
+                    \label{fig:mat2}
+                    \label{fig:all1}
+                \end{figure}
+                在研究矩阵访问优化方法时，通过对不同数据规模（N）下算法性能的测试分析，我发现在小规模数据（N<300）情况下，如图\ref{fig:mat1}所示，逐行与逐列访问方式的性能差异不显著，我猜测这主要因为CPU缓存（L1和L2）的较快访问速度能够缓解访存延迟的影响。即使L1 cache的命中率已经很低了，但是由于L2 cache的访问速度相对较快，所以访存时间差距不大。然而，引入循环展开技术的优化算法在此情境下即显示出显著的性能提升。
+                
+                随着数据规模的增加（300<N<3000），逐行访问相比于逐列访问的性能增长速度更慢，时间的差距迅速拉开。表明在这一数据规模下，缓存优化的效果开始显现。猜测这一现象与CPU缓存的层级结构和容量密切相关：L1 cache为64KB，L2为512KB，L3为48MB。由于每个unsigned long long int类型元素占据10字节，可估算出各级cache能容纳的元素数量分别约为80，200，2000。数据规模进一步扩大到N>3000时，逐列访问的效率明显低于逐行访问，因为此时L3 cache的命中率也降低，导致频繁的内存访问，增加了显著的访存开销。
+                \begin{table}[h]
+                    \centering
+                    \caption{不同规模下普通算法和cache优化算法各级cache访问次数和命中情况}
+                    \label{tab:cache_performance}
+                    \begin{tabular}{|c|c|c|c|c|c|c|}
+                    \hline
+                    \multicolumn{7}{|c|}{Ordinary} \\
+                    \hline
+                    n & L1 Hit & L1 Miss & L2 Hit & L2 Miss & L3 Hit & L3 Miss \\
+                    \hline
+                    80 & 7.81E+07 & 3.19E+05 & 3.11E+05 & 7.91E+03 & 2.64E+02 & 1.20E+01 \\
+                    300 & 1.45E+08 & 1.31E+07 & 1.28E+07 & 2.13E+05 & 1.63E+05 & 1.50E+02 \\
+                    4000 & 1.49E+08 & 1.58E+07 & 1.19E+07 & 3.93E+06 & 2.39E+06 & 8.89E+05 \\
+                    \hline
+                    \multicolumn{7}{|c|}{Optimized} \\
+                    \hline
+                    n & L1 Hit & L1 Miss & L2 Hit & L2 Miss & L3 Hit & L3 Miss \\
+                    \hline
+                    80 & 9.14E+07 & 4.08E+03 & 3.86E+03 & 1.37E+02 & 1.20E+02 & 0.00E+00 \\
+                    300 & 1.83E+08 & 5.62E+04 & 5.11E+04 & 5.12E+03 & 9.36E+02 & 0.00E+00 \\
+                    4000 & 1.45E+08 & 8.02E+04 & 7.65E+04 & 3.76E+03 & 3.57E+02 & 8.70E+01 \\
+                    \hline
+                    \end{tabular}
+                \end{table}
+                
+为了验证上述理论，本研究设计了两组实验，分别在数据规模为64、256和4096的情境下进行，通过利用VTune工具分析其各级缓存的访问频次及命中率，详细数据见表\ref{tab:cache_performance}。
 
-      \subsubsection{实验分析}
-      矩阵列向量点积实验运行计时的结果如下图所示，其中，矩阵行列数在实验中以16为步进。
-      \begin{figure}[!htbp]
-         \centering
-         \subfigure[ARM平台]{
-         \begin{minipage}[t]{0.5\linewidth}
-         \centering
-         \includegraphics[width=3.2in]{fig/ARM_mat_timing.png}
-         \label{fig:diff1}
-         \end{minipage}%
-         }%
-         \subfigure[X86平台]{
-         \begin{minipage}[t]{0.5\linewidth}
-         \centering
-         \includegraphics[width=3.2in]{fig/X86_mat_timing.png}
-         \end{minipage}%
-         }
-         \centering
-         \caption{矩阵列向量点积(矩阵行/列数-运行时间)(单位/秒)}
-         \label{fig:mat_timing}
-      \end{figure}
-      \begin{table}[!htbp]
-         \centering
-         \begin{tabular}{@{}lllll@{}}
-         \toprule
-         函数              & \begin{tabular}[c]{@{}l@{}}L1-dcache-\\ load-misses\end{tabular} & L1-dcache-loads & \begin{tabular}[c]{@{}l@{}}L1-dcache-\\ store-misses\end{tabular} & L1-dcache-stores \\ \midrule
-         common\_algo    & 86.84\%               & 50.00\%         & 86.83\%                & 50.00\%          \\
-         optimized\_algo & 13.13\%               & 49.99\%         & 13.12\%                & 49.99\%          \\
-         事件总数            & 30070924              & 3570518704      & 30070932               & 3570537681       \\ \bottomrule
-         \end{tabular}
-         \caption{ARM平台下矩阵列向量与向量点积的perf事件计数结果}
-         \label{table:t_ARM_cache}
-         \end{table}
-         
-         \begin{table}[!htbp]
-         \centering
-         \begin{tabular}{@{}llll@{}}
-         \toprule
-         函数              & L1-dcache-load-misses & L1-dcache-loads & L1-dcache-prefetches \\ \midrule
-         common\_algo    & 93.55\%               & 50.61\%         & 92.10\%              \\
-         optimized\_algo & 6.33\%                & 49.23\%         & 7.67\%               \\
-         事件总数            & 105630435             & 3161589638      & 80585651             \\ \bottomrule
-         \end{tabular}
-         \caption{X86平台下矩阵列向量与向量点积的perf事件计数结果}
-         \label{table:t_x86_cache}
-         \end{table}
-   \subsection{}
-      \subsubsection{实验设计}
+在数据规模为64的实验中，观察到逐列访问相比逐行访问在L1缓存的未命中率显著提高，这导致了对L2缓存的访问次数相应增加。尽管如此，由于L2缓存在大多数情况下都能成功命中，两种访问方式在效率上的差异并不明显。
 
+随着数据规模增至256，逐列访问方式在L2缓存的未命中率明显高于逐行访问，进而导致对L3缓存的访问次数大幅增加。虽然L3缓存的命中率依旧很高，但考虑到访问L3缓存的相对时间成本较高，这一阶段两种方法的性能差距开始显著。
+
+数据规模增至4096时，情况更加明显。逐列访问方式的L3缓存访问次数远超逐行访问，且L3缓存的未命中率高达27.1\%，这意味着需要进行大量的内存访问，因而时间成本极高，这成为了两种方法性能差异巨大的关键所在。
+                
+                进一步的测试在X86平台上揭示了算法性能在特定数据规模时出现了尖峰现象。
+                在n=1024处，算法执行时间出现了一个明显的尖峰，如图\ref{fig:mat3}所示
+                除该尖峰外，整个曲线也呈现出有规律的上下波动，经过几次重复实验后，发现曲线上相近的位置仍然存在尖峰。
+                  \begin{figure}[!htbp]
+                    \centering
+                    \subfigure[曲线在n=1024处出现的尖峰]{
+                    \begin{minipage}[t]{0.5\linewidth}
+                    \centering
+                    \includegraphics[width=3.2in]{fig/Figure_3.png}
+                    \label{fig:mat3}
+                    \end{minipage}%
+                    }%
+                    \subfigure[Cache的结构 - Cache Line]{
+                    \begin{minipage}[t]{0.5\linewidth}
+                    \centering
+                    \includegraphics[width=3.2in]{fig/cache_line.png}
+                    \end{minipage}%
+                    }
+                    \centering
+                    \caption{}
+                    \label{fig:cache_line}
+                \end{figure}
+                在perf 事件计数测量时发现，当矩阵行数为 1024 时，L1-dcache-load-misses 的事
+                件数量比矩阵行数为 1036 时多了 60\%。进一步分析汇编代码，发现这些事件基本都集中在提取矩阵
+                mat[j][i] 这个操作上。查阅资料后发现，这个问题可能和 cache 的结构有关，在现代处理器上，
+                Cache 划分成了 128 字节的小块，这种小块被称为 Cache Line，而同一个 Cache Line 是不可被同时访
+                问的。由于出现尖峰的曲线对应的是列主访问的算法，行列数为整倍数的矩阵导致每次从 Cache 中提
+                取元素都需要跨行访问，导致了额外的开销。也有可能由于超标量的特性，可能存在两条指令同时需
+                要修改同一个 Cache Line 中的内容的情况，这就造成了伪共享（false sharing）现象，从而导致 Cache
+                命中率降低。
+    \subsection{超标量优化}
+      \subsubsection{实验设计}
+对于给定的问题，要求计算 N 个数的和，对于常规的顺序算法而言，由于每次都是在同一个累加
+变量上进行累加，导致只能调用 CPU 的一条流水线进行处理，无法充分发挥 CPU 超标量优化的性
+能，因此考虑使用多链路的方法对传统的链式累加方法进行改进，即设置多个临时变量，在一个循环
+内同时用着多个临时变量对多个不同的位置进行累加，达到多个位置并行累加的效果，同时还能够减
+少循环遍历的步长，降低循环开销。由于多链路方法使用了循环展开技术在一定程度上降低了循环的
+额外开销，为了保证实验的准确性，我们对普通的链式累加方法也要进行同样比例的循环展开，控制
+实验的可变因素，使得实验结果具有合理的对比性。
       \subsubsection{实验分析}
-      累加实验运行计时的结果如下图所示
-      \begin{figure}[!htbp]
-      \centering
-      \subfigure[ARM平台]{
-      \begin{minipage}[t]{0.5\linewidth}
-      \centering
-      \includegraphics[width=3.2in]{fig/ARM_sum_timing.png}
-      \label{fig:diff1}
-      \end{minipage}%
-      }%
-      \subfigure[X86平台]{
-      \begin{minipage}[t]{0.5\linewidth}
-      \centering
-      \includegraphics[width=3.2in]{fig/X86_sum_timing.png}
-      \end{minipage}%
-      }
-      \centering
-      \caption{累加(输入数组长度-运行时间)(单位/秒)}
-      \label{fig:sum_timing}
-      \end{figure}
+累加实验运行计时的结果如下所示
+我测试了从0到70000不同问题规模的算法耗时。如图\ref{fig:all2}所示。
+
+               \begin{figure}[!htbp]
+                    \centering
+                    \subfigure[x86]{
+                    \begin{minipage}[t]{0.5\linewidth}
+                    \centering
+                    \includegraphics[width=3.2in]{fig/Figure_4.png}
+                    \label{fig:sum1}
+                    \end{minipage}%
+                    }%
+                    \subfigure[arm]{
+                    \begin{minipage}[t]{0.5\linewidth}
+                    \centering
+                    \includegraphics[width=3.2in]{fig/Figure_5.png}
+                    \end{minipage}%
+                    }
+                    \centering
+                    \caption{算法消耗时间随问题规模的变化}
+                    \label{fig:sum2}
+                    \label{fig:all2}
+                \end{figure}
+从表格数据可见，无论采用链式累加还是多链路展开策略，两者均为线性时间复杂度算法，其执行时间随问题规模增加而成比例增长。然而，采用双链路展开的超标量优化方法在时间效率上明显胜过传统的链式累加策略。原因在于，多链路策略通过解耦相互依赖的累加过程为两个独立的任务，允许CPU同时利用双重流水线进行处理，从而实现了超标量优化。
+
+进一步的证据来自于对比链式累加与多链路累加方法的CPI（每周期指令数）表现。如表\ref{tab:cpi1}所示，多链路累加方法的CPI显著低于链式累加，意味着在相同的时钟周期内，多链路累加能够完成更多的指令处理。这不仅佐证了超标量优化的有效性，也表明我们成功地利用了CPU的多条流水线来提高处理效率
+                    \begin{table}[htbp]
+                    \centering
+                    \caption{普通算法和优化算法的CPI对比}
+                    \label{tab:cpi1}
+                    \begin{tabular}{@{}lcc@{}}
+                    \toprule
+                     & 普通算法  & 2路优化算法 \\ \midrule
+                    CPI & 0.4975 & 0.4761 \\ \bottomrule
+                    \end{tabular}
+                    \end{table}
+                    
+
+在进行矩阵列向量点积实验时，我注意到ARM平台与X86平台在缓存效率上的表现差异显著，其中ARM平台的整体缓存命中率远高于X86平台（99.158\%相比于96.659\%）。这一现象可能源于ARM平台拥有更为高效的缓存访问机制，并且ARM平台的L1缓存容量更大（64KB对比32KB），从而提高了数据处理的效率。
+
+另一方面，比较两个平台在执行累加操作实验时的运行时间，ARM平台相较于X86平台要长得多，这一差异很可能归因于两者在指令集架构上的根本差异。这表明，虽然ARM平台在缓存效率方面表现出色，但其在某些计算任务上的性能可能受到指令集架构差异的影响，从而影响总体的运行效率。
+
+
+在图\ref{fig:all2}中展示的结果出乎意料地显示，递归算法在所有比较的算法中效率最低，这一发现与我们的直觉相悖。深入分析表\ref{table:perf_arm_sum}与表\ref{table:perf_X86_sum}揭示了递归算法产生大量的L1-dcache-load-misses事件，原因可能在于递归算法频繁进行非连续内存访问，导致跨越Cache Line，这是降低缓存命中率的主要原因。此外，递归算法本身相对于平凡算法和多路链式算法更为复杂，引入的额外变量可能也对性能产生不利影响。
+
+同时，图\ref{fig:all2}中的数据也揭示了一个有趣的现象：循环展开的效益并非随着展开路数的增加而线性提升。例如，在ARM平台上，2路循环展开与8192路循环展开的性能相差无几。通过对表\ref{table:perf_arm_sum}与表\ref{table:perf_X86_sum}的分析发现，8192路循环展开导致了大量的L1-dcache-load-misses和L1-icache-load-misses事件，从而影响了算法的性能。循环展开增加的每行代码都可能引发misses事件，这些小额的misses累积起来导致了缓存命中率的下降。此外，当输入数据规模增大到超出L1 Cache容量时，后续的循环展开将造成显著的性能损失。这些发现提示我们，在优化算法时，需要权衡循环展开的程度与算法性能之间的关系，避免过度优化导致的性能反而下降。
       \begin{table}[!htbp]
          \centering
          \begin{tabular}{@{}llllll@{}}
@@ -297,48 +374,9 @@ rulesepcolor= \color{ red!20!green!20!blue!20}
          \caption{X86平台下累加优化算法的perf事件计数结果}
          \label{table:perf_X86_sum}
          \end{table}
-\newpage}
-
-\subsection{Cache优化}
-从运行计时的结果图\ref{fig:mat_timing}可以看出，当输入数据规模超出某一个值后，优化的行主访问模式相较于列主访问，在运算时间上产生了较大的优势。根据事件计数的结果表\ref{table:t_ARM_cache}，ARM平台上,在L1-dcache-loads、L1-dcache-stores事件数量相差无几的前提下，列主访问的平凡算法所产生的L1-dcache-load-misses、L1-dcache-store-misses的事件数量是行主访问的优化算法的6倍以上。这表明了，列主访问不能最大化发挥cache的潜能，这应该也是行主访问在运行计时上优于列主访问的原因。
-
-\subsection{超标量优化}
-从运行计时的结果图\ref{fig:sum_timing}可以看出，无论是两路链式，还是循环展开，其运行速度都优于平凡算法，根据表\ref{table:perf_arm_sum}可以看出，平凡算法的CPI为0.6296，两路链式的CPI为0.4107，而32路链式的CPI为0.3429，这表明在一定范围内，通过增加单次循环中所执行的操作数来进行循环展开的优化，是可以充分利用CPU流水线的设计，得到一定的性能收益的
-
-\subsection{其它问题分析}
-\subsubsection{列向量点积数据中的尖峰}
-不难注意到，在图\ref{fig:mat_timing}中，ARM平台平凡算法的数据有四个明显的尖峰，除了这四个尖峰外，整个曲线表现出有规律的上下波动。经过几次重复实验后，发现曲线上相近的位置上依然存在着尖峰。并且查看尖峰对应的输入矩阵行数，发现它们恰巧对应着1024、1152、1280、1408（delta=128）这四个数值。
-
-在ARM平台上perf事件计数测量时发现，当矩阵行数为1024时，L1-dcache-load-misses的事件数量比矩阵行数为1025时多了60\%。进一步分析汇编代码，发现这些事件基本都集中在提取矩阵mat[j][i]这个操作上。查阅资料后发现，这个问题可能和cache的结构有关，在鲲鹏920处理器上，Cache划分成了128字节的小块，这种小块被称为Cache Line，而同一个Cache Line是不可被同时访问的。由于出现尖峰的曲线对应的是列主访问的算法，行列数为整倍数的矩阵导致每次从Cache中提取元素都需要跨行访问，导致了额外的开销。也有可能由于超标量的特性，可能存在两条指令同时需要修改同一个Cache Line中的内容的情况，这就造成了伪共享（false sharing）现象，从而导致Cache命中率降低。
-
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=3in]{fig/cache_line.png}
-    \caption{Cache的结构 - Cache Line\cite{cacheline}}
-    \label{fig:cache_line}
-\end{figure}
-
-而在X86平台上，平凡算法的曲线上也存在一个尖峰。perf分析发现，矩阵行数为1024时，branch-misses事件数量比比矩阵行数为1025时多了50\%，而L1-dcache-load-misses的事件数量则是相近的。这可能是由于不同平台的PMU（性能测量单元）或者Cache结构存在着差别，而X86平台上出现尖峰的原因与ARM平台是类似的。也可能是4M的L3 Cache被矩阵占满后，数据存储导致了额外的开销。
-
-其实，在程序性能优化中，Cache Line对齐是非常重要的一环，通过对数据结构的优化，程序可以获得可观的性能提升。
-
-\subsubsection{ARM和X86平台的区别}
-不难注意到，在矩阵列向量点积的实验中，ARM平台的总体Cache命中率要比X86平台高很多（99.158\% vs 96.659\%），这可能是由于ARM平台有着更加智能的Cache访问模式，也可能仅仅是因为ARM平台的L1缓存更大（64KB vs 32KB）。此外，不难发现ARM平台的累加的实验的运行时间要比X86平台长得多，这很有可能是因为指令集架构的不同导致的。
-
-\subsubsection{循环展开的层数}
-在图\ref{fig:sum_timing}中，可以发现并不是循环展开的路数越多，算法的性能就越好。比如在ARM平台上，2路展开就和8192路展开运行的速度差不多。根据表\ref{table:perf_arm_sum}和表\ref{table:perf_X86_sum}的perf性能分析发现，8192路展开产生了大量的L1-dcache-load-misses和L1-icache-load-misses事件，导致了性能的降低。
-
-导致这现象一方面的原因是，展开循环后的每一行代码依然会产生一定的misses事件，积少成多便降低了Cache命中率。此外，输入数据达到一定规模后，L1 Cache便不再能存下所有的数据了，因此后面的展开会造成大量的性能开销。
-
-这个现象告诉程序设计者们，进行循环展开时的层数也不是越高越好的：展开的层数太高不仅会导致程序体积的变大，还不能给性能带来任何正面的提升。
-
-\subsubsection{递归算法的负优化}
-在图\ref{fig:sum_timing}中，显而易见的，递归算法是所有算法中效率最低的一个，这明显是不符合直觉的。分析表\ref{table:perf_arm_sum}和表\ref{table:perf_X86_sum}后发现，递归算法产生了大量的L1-dcache-load-misses事件，这很有可能是因为递归算法需要进行大量不连续内存的访问，跨越Cache Line或者Cache Line伪共享很可能是命中率降低的罪魁祸首。
-
-此外，递归算法的代码本身就比平凡算法和多路链式算法要复杂，多出来的变量也很可能造成了不小的额外开销。
-
 \newpage
-\bibliographystyle{plain}
-\bibliography{reference.bib} 
+\section{总结}
+在探究给定的矩阵乘法和数组累加问题时，本研究采取了缓存优化和超标量优化策略，旨在提升串行算法的执行效率。通过实验比较，发现对于矩阵乘法问题，逐行访问方式在处理大规模数据集时展现出显著的性能优势。这一优势源于其能够有效提高缓存命中率，由此减少了由内存访问延迟引起的性能损耗。此外，在数组累加实验中，通过引入超标量优化技术——即同时进行多个独立变量的累加操作，以此最终汇总得到总和——能够充分发挥 CPU 多流水线的并行处理能力，从而显著加速程序的执行。这些发现证实了针对特定计算模式采用相应优化策略的有效性。
 
+该实验的全部代码在https://github.com/ftygu/COSC0025-Parallel-Programming-Design中给出。
 \end{document}
