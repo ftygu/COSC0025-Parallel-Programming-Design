@@ -1,0 +1,239 @@
+% -*- coding: utf-8 -*-
+%-------------------------designed by zcf--------------
+\documentclass[UTF8,a4paper,10pt]{ctexart}
+\usepackage[left=3.17cm, right=3.17cm, top=2.74cm, bottom=2.74cm]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx,subfig}
+\usepackage{float}
+\usepackage{cite}
+\usepackage{caption}
+\usepackage{enumerate}
+\usepackage{booktabs} %表格
+\usepackage{multirow}
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}  %表格强制换行
+%-------------------------字体设置--------------
+% \usepackage{times} 
+\usepackage{ctex}
+\setCJKmainfont[ItalicFont=Noto Sans CJK SC Bold, BoldFont=Noto Serif CJK SC Black]{Noto Serif CJK SC}
+\newcommand{\yihao}{\fontsize{26pt}{36pt}\selectfont}           % 一号, 1.4 倍行距
+\newcommand{\erhao}{\fontsize{22pt}{28pt}\selectfont}          % 二号, 1.25倍行距
+\newcommand{\xiaoer}{\fontsize{18pt}{18pt}\selectfont}          % 小二, 单倍行距
+\newcommand{\sanhao}{\fontsize{16pt}{24pt}\selectfont}  %三号字
+\newcommand{\xiaosan}{\fontsize{15pt}{22pt}\selectfont}        % 小三, 1.5倍行距
+\newcommand{\sihao}{\fontsize{14pt}{21pt}\selectfont}            % 四号, 1.5 倍行距
+\newcommand{\banxiaosi}{\fontsize{13pt}{19.5pt}\selectfont}    % 半小四, 1.5倍行距
+\newcommand{\xiaosi}{\fontsize{12pt}{18pt}\selectfont}            % 小四, 1.5倍行距
+\newcommand{\dawuhao}{\fontsize{11pt}{11pt}\selectfont}       % 大五号, 单倍行距
+\newcommand{\wuhao}{\fontsize{10.5pt}{15.75pt}\selectfont}    % 五号, 单倍行距
+%-------------------------章节名----------------
+\usepackage{ctexcap} 
+\CTEXsetup[name={,、},number={ \chinese{section}}]{section}
+\CTEXsetup[name={（,）},number={\chinese{subsection}}]{subsection}
+\CTEXsetup[name={,.},number={\arabic{subsubsection}}]{subsubsection}
+%-------------------------页眉页脚--------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{\kaishu \leftmark}
+% \chead{}
+\rhead{\kaishu 并行程序设计实验报告}%加粗\bfseries 
+\lfoot{}
+\cfoot{\thepage}
+\rfoot{}
+\renewcommand{\headrulewidth}{0.1pt}  
+\renewcommand{\footrulewidth}{0pt}%去掉横线
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}%标题横线
+\newcommand{\HRulegrossa}{\rule{\linewidth}{1.2mm}}
+%-----------------------伪代码------------------
+\usepackage{algorithm}  
+\usepackage{algorithmicx}  
+\usepackage{algpseudocode}  
+\floatname{algorithm}{Algorithm}  
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}  
+\renewcommand{\algorithmicensure}{\textbf{Output:}} 
+\usepackage{lipsum}  
+\makeatletter
+\newenvironment{breakablealgorithm}
+  {% \begin{breakablealgorithm}
+  \begin{center}
+     \refstepcounter{algorithm}% New algorithm
+     \hrule height.8pt depth0pt \kern2pt% \@fs@pre for \@fs@ruled
+     \renewcommand{\caption}[2][\relax]{% Make a new \caption
+      {\raggedright\textbf{\ALG@name~\thealgorithm} ##2\par}%
+      \ifx\relax##1\relax % #1 is \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##2}%
+      \else % #1 is not \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##1}%
+      \fi
+      \kern2pt\hrule\kern2pt
+     }
+  }{% \end{breakablealgorithm}
+     \kern2pt\hrule\relax% \@fs@post for \@fs@ruled
+  \end{center}
+  }
+\makeatother
+%------------------------代码-------------------
+\usepackage{xcolor} 
+\usepackage{listings} 
+\lstset{ 
+breaklines,%自动换行
+basicstyle=\small,
+escapeinside=``,
+keywordstyle=\color{ blue!70} \bfseries,
+commentstyle=\color{red!50!green!50!blue!50},% 
+stringstyle=\ttfamily,% 
+extendedchars=false,% 
+linewidth=\textwidth,% 
+numbers=left,% 
+numberstyle=\tiny \color{blue!50},% 
+frame=trbl% 
+rulesepcolor= \color{ red!20!green!20!blue!20} 
+}
+%------------超链接----------
+\usepackage[colorlinks,linkcolor=black,anchorcolor=blue]{hyperref}
+%------------------------TODO-------------------
+\usepackage{enumitem,amssymb}
+\newlist{todolist}{itemize}{2}
+\setlist[todolist]{label=$\square$}
+% for check symbol 
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+\newcommand{\done}{\rlap{$\square$}{\raisebox{2pt}{\large\hspace{1pt}\cmark}}\hspace{-2.5pt}}
+\newcommand{\wontfix}{\rlap{$\square$}{\large\hspace{1pt}\xmark}}
+%------------------------水印-------------------
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{eso-pic}
+
+\newcommand{\watermark}[3]{\AddToShipoutPictureBG{
+\parbox[b][\paperheight]{\paperwidth}{
+\vfill%
+\centering%
+\tikz[remember picture, overlay]%
+  \node [rotate = #1, scale = #2] at (current page.center)%
+    {\textcolor{gray!80!cyan!30!magenta!30}{#3}};
+\vfill}}}
+
+
+
+%———————————————————————————————————————————正文———————————————————————————————————————————————
+%----------------------------------------------
+\begin{document}
+\begin{titlepage}
+    \begin{center}
+    \includegraphics[width=0.8\textwidth]{NKU.png}\\[1cm]    
+    \textsc{\Huge \kaishu{\textbf{南\ \ \ \ \ \ 开\ \ \ \ \ \ 大\ \ \ \ \ \ 学}} }\\[0.9cm]
+    \textsc{\huge \kaishu{\textbf{计\ \ 算\ \ 机\ \ 学\ \ 院}}}\\[0.5cm]
+    \textsc{\Large \textbf{并行程序设计实验报告}}\\[0.8cm]
+    \HRule \\[0.9cm]
+    { \LARGE \bfseries 期末研究开题报告}\\[0.4cm]
+    \HRule \\[2.0cm]
+    \centering
+    \textsc{\LARGE 张明昆 2211585\kaishu{\ \ \ \ }}\\[0.5cm]
+    \textsc{\LARGE \kaishu{年级\ :\ 2022级}}\\[0.5cm]
+    \textsc{\LARGE \kaishu{专业\ :\ 计算机科学与技术}}\\[0.5cm]
+    \textsc{\LARGE \kaishu{指导教师\ :\ 王刚}}\\[0.5cm]
+    \vfill
+    {\Large \today}
+    \end{center}
+\end{titlepage}
+%-------------摘------要--------------
+\newpage
+\thispagestyle{empty}
+\renewcommand{\abstractname}{\kaishu \sihao \textbf{摘要}}
+    \begin{abstract}
+本开题报告旨在探索Gröbner基高斯消元法的并行优化，以解决多元多项式理想成员判定问题中的高计算复杂度。Gröbner基作为数学和计算代数领域的一个重要工具，虽然在多个领域有广泛应用，但其处理大规模问题时的效率低下是一个显著的短板。本研究提出的预计探索方向和实验设计，旨在通过并行计算和算法优化，显著提升Gröbner基高斯消元法在处理复杂问题时的性能。
+        \noindent  %顶格
+        \textbf{\\\ 关键字：Parallel Gröbner基高斯消元法}\textbf{} \\\ \\\
+    \end{abstract}
+%----------------------------------------------------------------
+\tableofcontents
+%----------------------------------------------------------------
+\newpage
+\watermark{60}{10}{NKU}
+\setcounter{page}{1}
+\section{背景介绍}
+\subsection{Gröbner基简史}
+Gröbner基，这个数学界的“瑞士军刀”，是经过数十年演变而来的。早在1927年，F.S.Macauly就引入了全序的概念，对多项式的单项式进行排序，这为Gröbner基的诞生奠定了基础。而后，在1964年，H.Hironaka在研究奇点分解时，引入了多项式除法算法，进一步拓宽了这一领域的研究。紧接着，在1965年，奥地利数学家B.Buchberger不仅引入了项序，确保了多项式除法的结果唯一性，还提出了S-多项式的概念，并设计了计算Gröbner基的算法，即著名的Buchberger算法，从而开辟了解决多元多项式理想问题的新途径。
+\subsection{Gröbner基的应用}
+在密码学中，Gröbner基扮演了解密的钥匙角色，特别是在处理多变量多项式方程系统的问题上，这些方程系统是多变量公钥密码体系的核心。通过解这些方程组，可以揭露加密信息，仿冒数字签名。然而，尽管Gröbner基提供了一种有效的求解工具，它的计算复杂度极高，早期的Buchberger算法效率低下，因此研究者们开发了更高效的算法，如F4和F5。
+
+Gröbner基的计算虽然面临NP难题的挑战，但通过探索和利用系统内部的结构特征，可以显著提高算法的效率。例如，在某些布尔Gröbner基计算中，通过特殊的高斯消元方法来加速，展示了并行化算法潜力的一面。这正是我们研究的焦点，旨在通过并行计算，解锁Gröbner基算法的新可能。
+\section{前人研究}
+在数学和计算代数领域，Gröbner基的研究和开发已经走过了一段漫长而富有成果的道路。自Buchberger首次提出Gröbner基求解算法以来，众多科学家通过引入新的概念、方法和优化技术，极大地推动了这一领域的发展。以下是对这一进程的总结，重点介绍了几个关键的里程碑和最新进展。
+\begin{itemize}
+  \item Buchberger首次提出了Gröbner基求解算法，为后续研究奠定了基础。这一算法虽然开创性，但在处理复杂问题时效率不高。
+  \item 继Buchberger之后，Lazard引入了线性代数方法到Gröbner基的求解中，这一方法为后续的算法优化提供了新的思路。
+  \item Faugère提出了基于线性代数的F4算法和基于标签的F5算法，这两个算法被认为是目前求解Gröbner基最高效的方法。尤其是F5算法，它通过避免冗余计算和引入额外的检测标准来减少无效计算，虽然在执行效率上仍有提升空间。
+  \item 在F4和F5算法的基础上，诸如Arri-Perry(AP)\cite{2}、Gao-Guan-Volny(G2V)\cite{4}和Gao-Volny-Wang(GVW)\cite{5}等并行算法应运而生，进一步提高了Gröbner基计算的效率。
+除此之外，研究者还探索了对Macaulay矩阵的并行化改造、高效的约化准则以及利用MPI技术处理算法中间项的约化部分等优化方法\cite{7}
+  \item Rodrigo Alexander Castro Campos等人提出了针对布尔Gröbner基的有效实现策略，包括对F4算法的变体、新的并行实现Buchberger准则以及待定多项式的改进处理方法。\cite{3}
+\end{itemize}
+
+通过这些年的不懈努力和创新，Gröbner基的求解算法已经从早期的Buchberger算法发展到今天的高效并行算法。
+\section{问题简介}
+\subsection{Gröbner基的挑战}
+Gröbner基为非线性多项式理想的成员判定提供了一种强大的计算代数方法，但其计算复杂度高，尤其在涉及大型问题时，传统算法往往难以承受计算负担。
+\subsection{特殊高斯消元算法}
+为了优化Gröbner基的计算过程，引入了一种特殊的高斯消元方法。这种方法针对的是有限域GF(2)上的运算，其特点包括：
+\begin{itemize}
+  \item 运算数与规则：仅涉及0和1的运算，其中加法和乘法遵循特定的简化规则。
+  \item 消元子模式：矩阵分为“消元子”和“被消元行”，其中消元子负责减去操作，被消元行则在消去过程中可能转换为消元子。
+\end{itemize}
+\subsection{高效实现的追求}
+我们的研究旨在探索如何通过并行计算和算法优化，提高这一特殊高斯消元算法的效率，进而为Gröbner基的计算提供高效支持。这包括但不限于：
+\begin{itemize}
+  \item 数据批处理：考虑矩阵规模可能达到百万级，如何有效地分批处理数据以适应内存限制。
+  \item 并行化策略：如何利用并行计算优化消元子与被消元行的处理，加速整个消去过程。
+  \item 优化消元过程：探索算法内部如何减少冗余计算，提高消元效率，包括消元行的升格机制和空行处理。
+\end{itemize}
+\section{拟采取的研究方案}
+在本研究中，我们将探索高斯消元法的并行化处理方法，特别关注于Gröbner基的计算过程，旨在提高高斯消元在多元多项式理想成员判定问题中的计算效率。高斯消元过程的并行化，特别是在处理大规模数据集时，具有显著的性能提升潜力。本研究将通过一系列实验，系统地探索和评估不同并行化策略在高斯消元法中的应用效果。
+
+实验将在包括Intel Devcloud、鲲鹏、金山云等多个平台上进行，利用MPI、OpenMP、SIMD等技术进行并行化优化，同时使用CUDA和OneAPI探索GPU优化的可能性。实验结果将基于性能提升比（Speedup）和执行时间等关键指标进行评估和比较。
+\subsection{实验一：MPI多线程优化}
+\begin{itemize}
+  \item 目标：采用消息传递接口(MPI)实现高斯消元算法的多线程并行优化，并分析在不同任务规模下的性能表现。
+  \item 方法：实验将以不同大小的数据集为基准，评估MPI并行化对算法性能的影响。
+\end{itemize}
+\subsection{实验二：任务划分策略}
+\begin{itemize}
+  \item 目标：比较循环划分和块划分两种不同的任务划分策略，在高斯消元并行处理中的性能表现。
+  \item 方法：通过实验评估在相同条件下，不同任务划分方式对性能的具体影响。
+\end{itemize}
+\subsection{实验三：消息发送方式比较}
+\begin{itemize}
+  \item 目标：对比广播和流水线两种MPI消息发送方式，在并行高斯消元过程中的性能差异。
+  \item 方法：实施两种通信机制，分析其在不同并行规模下的性能和效率。
+\end{itemize}
+\subsection{实验四：结合MPI与SIMD向量化}
+\begin{itemize}
+  \item 目标：使用MPI配合SIMD向量化处理，探究并行化和向量化结合对性能的影响。
+  \item 方法：在MPI并行框架下，引入SIMD向量化指令，评估其对算法加速的贡献。
+\end{itemize}
+\subsection{实验五：多线程优化（MPI + OMP）}
+\begin{itemize}
+  \item 目标：结合MPI和OpenMP（OMP）进行多线程优化，分析其性能提升。
+  \item 方法：在MPI并行化基础上，进一步通过OMP实现线程级并行，对比单纯MPI并行的性能提升。
+\end{itemize}
+\subsection{实验六：综合优化（MPI + SIMD + OMP）}
+\begin{itemize}
+  \item 目标：探索MPI、SIMD和OMP的综合并行优化效果。
+  \item 方法：将MPI多进程并行、OMP多线程优化和SIMD向量化处理结合起来，评估综合优化策略的性能。
+\end{itemize}
+\subsection{实验七：平台迁移性能分析}
+\begin{itemize}
+  \item 目标：将openmp优化方法从x86平台迁移到arm平台上，分析性能表现。
+  \item 方法：在两种硬件平台上实施相同的优化策略，比较并分析性能差异。
+\end{itemize}
+\subsection{实验八：进程数量对性能的影响}
+\begin{itemize}
+  \item 目标：研究不同进程数量对MPI并行性能的影响。
+  \item 方法：在固定的线程数下，调整进程数量，记录并分析性能变化。
+\end{itemize}
+
+本研究预期通过上述实验设计，深入理解并行化策略在高斯消元法中的应用效果，特别是在处理Gröbner基计算问题时的性能提升潜力。我们希望找到一种或多种有效的并行化方法，能够显著提高算法的执行效率，特别是在处理大规模数据集时。
+\newpage
+\bibliographystyle{plain}
+\bibliography{reference} 
+\end{document}
